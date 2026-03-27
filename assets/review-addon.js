@@ -23,40 +23,175 @@
     { value: 'REJECT', label: '否决' }
   ];
   var PARTICIPANTS = ['陈晨', '刘峰', '王嘉', '赵敏'];
+  var CASE_PROMPT = '电动SUV概念设计外饰草图，强调整车比例、姿态与型面张力';
+  var CASE_PROMPT_SHORT_CN = '一辆流线型电动SUV，未来主义风格，悬浮式车顶';
+  var CASE_PROMPT_LONG_EN =
+    'streamlined body profile, aerodynamic silhouette, flowing shoulder line, coupe-like roofline, smooth surface transitions, wind-cheating design, automotive design, professional concept art, high detail, photorealistic rendering, studio lighting, 8k quality';
+  var CASE_PROMPT_KEYWORDS = [
+    { word: 'streamlined', weight: 0.93 },
+    { word: 'automotive design', weight: 0.87 },
+    { word: 'professional concept', weight: 0.81 },
+    { word: 'high detail', weight: 0.74 }
+  ];
+  var PAPER_HEATMAP_PROMPT =
+    'streamlined body profile, aerodynamic silhouette, flowing shoulder line, coupe-like roofline, smooth surface transitions, wind-cheating design';
+  var CASE_VIEW_IMAGES = {
+    front: './assets/case-front.png',
+    side: './assets/case-side.png',
+    rear: './assets/case-rear.png'
+  };
+  var CASE_VIEW_LABELS = {
+    front: '前视图',
+    side: '侧视图',
+    rear: '后视图'
+  };
+  var PAPER_HEATMAP_REGIONS = [
+    {
+      word: 'streamlined body profile',
+      weight: 0.93,
+      x: 47,
+      y: 57,
+      width: 34,
+      height: 18,
+      focus: '前舱到后轮的整体体量过渡',
+      note: '主体体块连续性强，语义映射稳定。'
+    },
+    {
+      word: 'aerodynamic silhouette',
+      weight: 0.89,
+      x: 42,
+      y: 40,
+      width: 24,
+      height: 12,
+      focus: '车头上缘到车顶的轮廓线',
+      note: '上沿轮廓具备明显低阻姿态。'
+    },
+    {
+      word: 'flowing shoulder line',
+      weight: 0.86,
+      x: 59,
+      y: 51,
+      width: 16,
+      height: 10,
+      focus: '翼子板后段至车门肩线',
+      note: '肩线连接完整，曲率变化平滑。'
+    },
+    {
+      word: 'coupe-like roofline',
+      weight: 0.84,
+      x: 53,
+      y: 36,
+      width: 20,
+      height: 10,
+      focus: 'A柱至D柱下压式车顶弧线',
+      note: '车顶收敛趋势符合轿跑化语义。'
+    },
+    {
+      word: 'smooth surface transitions',
+      weight: 0.87,
+      x: 51,
+      y: 59,
+      width: 20,
+      height: 14,
+      focus: '前后门外板与轮拱邻接区域',
+      note: '曲面跳变被有效抑制，光顺连续。'
+    },
+    {
+      word: 'wind-cheating design',
+      weight: 0.9,
+      x: 34,
+      y: 69,
+      width: 18,
+      height: 12,
+      focus: '前保下缘与侧裙导流区域',
+      note: '导流相关形面关联度较高。'
+    }
+  ];
+  var PAPER_XAI_MARKERS = [
+    {
+      id: '1',
+      left: 41,
+      top: 52,
+      level: '中风险',
+      title: 'A柱与外后视镜连接区',
+      issue: '镜座后方仍有局部分离迹象，可继续收紧过渡半径。',
+      advice: '缩短镜座根部外伸长度，并增强A柱外侧导流转折。'
+    },
+    {
+      id: '2',
+      left: 63,
+      top: 68,
+      level: '中风险',
+      title: '后轮前缘与侧裙交界',
+      issue: '轮包前方气流抬升，附着稳定性有提升空间。',
+      advice: '在后轮前缘增加导流特征线，提升侧面气流贴附能力。'
+    },
+    {
+      id: '3',
+      left: 84,
+      top: 51,
+      level: '低风险',
+      title: '车尾收敛截面',
+      issue: '尾部收敛整体可控，但底缘仍有细化余量。',
+      advice: '微调尾部下缘与扩散器过渡，进一步降低尾迹损失。'
+    }
+  ];
   var DASHBOARD_REPORTS = [
     {
-      title: 'Q1 外饰趋势跟踪',
+      title: '电动SUV概念设计周报',
       time: '今天 09:30',
-      summary: '聚焦贯穿灯带与型面收敛，建议纳入下轮评审基线。'
+      summary: '汇总概念阶段草图探索、比例判断和阶段输出，为下周第一次评审做准备。'
     },
     {
-      title: '竞品 CMF 对比',
-      time: '昨天 16:10',
-      summary: '暖灰内饰材料占比上升，哑光金属饰条更受欢迎。'
+      title: '轿车改款前脸迭代记录',
+      time: '昨天 16:20',
+      summary: '整理改款方案在灯组位置、格栅尺度和视觉重心上的三轮调整结论。'
     },
     {
-      title: '知识图谱更新',
-      time: '昨天 11:20',
-      summary: '新增 8 个概念节点，补全方案与风险关联关系。'
+      title: 'MPV 新车型内饰趋势简报',
+      time: '昨天 10:40',
+      summary: '归纳近两周座舱布局、屏幕组合和二排体验方向的竞品观察结果。'
     }
   ];
   var DASHBOARD_SCHEDULE = [
-    { time: '09:30', title: '外饰方案晨会', owner: '整车设计部' },
-    { time: '11:00', title: 'CMF 评审同步', owner: 'CMF 团队' },
-    { time: '14:00', title: '知识图谱校准', owner: '策略组' },
-    { time: '16:30', title: '方案复盘', owner: '项目组' }
+    { time: '今天 10:00', title: '轿车改款方案同步会', owner: '外饰设计组' },
+    { time: '明天 15:00', title: 'MPV 新车型内饰方向沟通', owner: '内饰设计组' },
+    { time: '2026-03-27 14:00', title: '电动SUV概念设计外饰草图第一次评审', owner: '项目评审会' },
+    { time: '2026-03-28 10:30', title: '运动轿跑探索阶段归档', owner: '项目资产库' }
   ];
   var DASHBOARD_TODOS = [
-    { title: '补充车尾方案参考图', done: false },
-    { title: '整理评审会纪要模板', done: false },
-    { title: '确认下轮评审参会人', done: true },
-    { title: '更新风险项优先级', done: false }
+    { title: '完成电动SUV外饰草图第一轮整理', done: true },
+    { title: '确认轿车改款前脸对比版面', done: false },
+    { title: '补充 MPV 二排体验参考资料', done: false },
+    { title: '归档运动轿跑探索阶段版本', done: false }
   ];
   var DASHBOARD_RISKS = [
-    { level: '高', text: '轿车改款项目进度压线，STD 节点需提前预审。' },
-    { level: '中', text: 'CMF 新材料供应信息滞后，影响落地评估。' },
-    { level: '中', text: '知识图谱中 2 条关系链缺少来源引用。' }
+    { level: '高', text: '电动SUV概念设计仍处于概念阶段早期，评审前需要先收敛一版主姿态。' },
+    { level: '中', text: '轿车改款与 MPV 新车型的同步任务较多，本周排期存在挤压风险。' },
+    { level: '中', text: '多个项目同时推进，图层命名和版本归档需要保持一致。' }
   ];
+  var REPORT_FIXED_DATA = {
+    projectName: '电动SUV概念设计',
+    projectStage: 'DES · 概念设计阶段',
+    reportTime: '2026-03-27 16:20',
+    reporter: '外饰设计组（演示）',
+    seed: '65981',
+    promptCn: '一辆流线型电动SUV，未来主义风格，悬浮式车顶',
+    promptEn:
+      'streamlined body profile, aerodynamic silhouette, flowing shoulder line, coupe-like roofline, smooth surface transitions, wind-cheating design, automotive design, professional concept art, high detail, photorealistic rendering, studio lighting, 8k quality',
+    styleSummary: ['SUV车身 (0.70)', '赛博朋克 (0.50)', '极简主义 (0.62)'],
+    iterationHistory: [
+      { time: '15:31', action: '创建概念草图 v1，完成基础比例与姿态定位' },
+      { time: '15:46', action: '优化提示词并生成三视图候选，筛选主方案' },
+      { time: '16:05', action: '运行交叉注意力热力图，完成语义映射核对' },
+      { time: '16:18', action: '执行可行性分析，形成改进建议与结论' }
+    ],
+    styleCompare: [
+      { name: '未来主义流线方案', highlights: '车身过渡连贯，轮廓阻力趋势更优', suitability: '主推' },
+      { name: '极简科技方案', highlights: '型面干净，量产一致性高', suitability: '备选' },
+      { name: '运动强化方案', highlights: '姿态激进，视觉冲击强', suitability: '探索' }
+    ]
+  };
 
   var CAR_IMAGES = [
     'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=900&h=560&fit=crop',
@@ -73,7 +208,8 @@
 
   var state = {
     open: false,
-    dashboardOpen: true,
+    dashboardOpen: false,
+    reportOpen: false,
     profileMenuOpen: false,
     notifyEnabled: true,
     step: 1,
@@ -82,13 +218,13 @@
     projects: [
       {
         id: 'project-ev-suv',
-        name: '电动SUV概念',
+        name: '电动SUV概念设计',
         type: 'SUV',
         stage: 'DES',
-        progress: 42,
+        progress: 18,
         thumbnail: CAR_IMAGES[0],
-        lastUpdated: nowMinusHours(26),
-        participantCount: 14
+        lastUpdated: nowMinusHours(1),
+        participantCount: 6
       },
       {
         id: 'project-sedan-refresh',
@@ -133,6 +269,10 @@
     lastActionAt: new Date(),
     toastId: 0,
     toasts: [],
+    scenarioPromptApplied: false,
+    scenarioPromptOptimized: false,
+    scenarioOptimizePending: false,
+    scenarioActiveView: 'front',
     dashboardTodos: DASHBOARD_TODOS.map(function (todo) {
       return { title: todo.title, done: todo.done };
     })
@@ -1090,8 +1230,8 @@
       '<section class="gc-dashboard">' +
       '<header class="gc-dashboard-top">' +
       '<div>' +
-      '<h1>个人设计大屏</h1>' +
-      '<p>项目进度、报告、知识图谱与日程一屏汇总。</p>' +
+      '<h1>个人项目看板</h1>' +
+      '<p>汇总设计师当前在管项目的进度、报告、日程与阶段风险，电动SUV概念设计为当前重点任务。</p>' +
       '</div>' +
       '<div class="gc-dashboard-top-actions">' +
       '<button class="gc-btn gc-btn-secondary" data-action="dashboard-refresh">刷新看板</button>' +
@@ -1162,15 +1302,13 @@
       '</ul>' +
       '</article>' +
       '<article class="gc-bento-card span-4">' +
-      '<h3>评审状态</h3>' +
+      '<h3>设计进程</h3>' +
       '<p class="gc-kpi"><strong>' +
       stats.reviewedCount +
       '/' +
       stats.imageCount +
-      '</strong> 已评审图片</p>' +
-      '<p>' +
-      escapeHtml(stats.sessionTitle) +
-      '</p>' +
+      '</strong> 已整理图片</p>' +
+      '<p>当前聚焦：电动SUV概念设计</p>' +
       '<p>状态：' +
       escapeHtml(stats.sessionStatus) +
       '</p>' +
@@ -1185,12 +1323,9 @@
       '<p class="gc-kpi"><strong>' +
       state.projects.length +
       '</strong> 个在管项目</p>' +
-      '<p>在线参与人：' +
-      PARTICIPANTS.length +
-      ' 人</p>' +
-      '<p>今日已更新报告：' +
-      DASHBOARD_REPORTS.length +
-      ' 份</p>' +
+      '<p>当前重点：电动SUV外饰草图探索与比例验证</p>' +
+      '<p>设计师同时维护轿车改款、MPV 新车型与运动轿跑探索项目</p>' +
+      '<p>支持纯净模式、参数记录与版本回溯</p>' +
       '</article>' +
       '<article class="gc-bento-card span-4">' +
       '<h3>风险提醒</h3>' +
@@ -1240,6 +1375,98 @@
     );
   }
 
+  function renderDesignReport() {
+    return (
+      '<section class="gc-report-page">' +
+      '<article class="gc-report-card">' +
+      '<h3>项目信息</h3>' +
+      '<div class="gc-report-kv">' +
+      '<span>项目名称</span><strong>' +
+      escapeHtml(REPORT_FIXED_DATA.projectName) +
+      '</strong>' +
+      '</div>' +
+      '<div class="gc-report-kv"><span>阶段</span><strong>' +
+      escapeHtml(REPORT_FIXED_DATA.projectStage) +
+      '</strong></div>' +
+      '<div class="gc-report-kv"><span>报告时间</span><strong>' +
+      escapeHtml(REPORT_FIXED_DATA.reportTime) +
+      '</strong></div>' +
+      '<div class="gc-report-kv"><span>整理人</span><strong>' +
+      escapeHtml(REPORT_FIXED_DATA.reporter) +
+      '</strong></div>' +
+      '</article>' +
+      '<article class="gc-report-card">' +
+      '<h3>参数元数据（自动记录）</h3>' +
+      '<div class="gc-report-kv"><span>Prompt（原始）</span><p>' +
+      escapeHtml(REPORT_FIXED_DATA.promptCn) +
+      '</p></div>' +
+      '<div class="gc-report-kv"><span>Prompt（优化结果）</span><p>' +
+      escapeHtml(REPORT_FIXED_DATA.promptEn) +
+      '</p></div>' +
+      '<div class="gc-report-kv"><span>风格设置</span><p>' +
+      escapeHtml(REPORT_FIXED_DATA.styleSummary.join(' / ')) +
+      '</p></div>' +
+      '<div class="gc-report-kv"><span>随机种子</span><strong>' +
+      escapeHtml(REPORT_FIXED_DATA.seed) +
+      '</strong></div>' +
+      '</article>' +
+      '<article class="gc-report-card">' +
+      '<h3>设计迭代历史</h3>' +
+      '<ul class="gc-report-list">' +
+      REPORT_FIXED_DATA.iterationHistory
+        .map(function (item) {
+          return '<li><time>' + escapeHtml(item.time) + '</time><span>' + escapeHtml(item.action) + '</span></li>';
+        })
+        .join('') +
+      '</ul>' +
+      '</article>' +
+      '<article class="gc-report-card">' +
+      '<h3>三视图渲染结果</h3>' +
+      '<div class="gc-report-views">' +
+      '<figure><img src="' +
+      escapeHtml(CASE_VIEW_IMAGES.front) +
+      '" alt="前视图" /><figcaption>前视图</figcaption></figure>' +
+      '<figure><img src="' +
+      escapeHtml(CASE_VIEW_IMAGES.side) +
+      '" alt="侧视图" /><figcaption>侧视图</figcaption></figure>' +
+      '<figure><img src="' +
+      escapeHtml(CASE_VIEW_IMAGES.rear) +
+      '" alt="后视图" /><figcaption>后视图</figcaption></figure>' +
+      '</div>' +
+      '</article>' +
+      '<article class="gc-report-card">' +
+      '<h3>风格对比分析</h3>' +
+      '<div class="gc-report-compare">' +
+      REPORT_FIXED_DATA.styleCompare
+        .map(function (item) {
+          return (
+            '<div class="gc-report-compare-item">' +
+            '<strong>' +
+            escapeHtml(item.name) +
+            '</strong>' +
+            '<p>' +
+            escapeHtml(item.highlights) +
+            '</p>' +
+            '<em>' +
+            escapeHtml(item.suitability) +
+            '</em>' +
+            '</div>'
+          );
+        })
+        .join('') +
+      '</div>' +
+      '</article>' +
+      '<article class="gc-report-card">' +
+      '<h3>热力图分析页面</h3>' +
+      '<div class="gc-report-heatmap">' +
+      '<img src="./assets/heatmap-manual.png" alt="热力图分析" />' +
+      '<p>该页用于展示提示词与图像关注区域的映射关系，作为设计方案可控性与可行性说明的辅助证据。</p>' +
+      '</div>' +
+      '</article>' +
+      '</section>'
+    );
+  }
+
   var host = document.createElement('div');
   host.id = 'gc-review-addon-host';
   document.body.appendChild(host);
@@ -1248,9 +1475,9 @@
   shadow.innerHTML =
     '<style>' +
     ':host{all:initial}' +
-    '.gc-launch{position:fixed;top:14px;right:14px;z-index:2147483600;border:1px solid rgba(34,211,238,.5);background:rgba(6,182,212,.18);color:#ecfeff;border-radius:10px;padding:8px 14px;font:600 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.3)}' +
+    '.gc-launch{position:fixed;top:14px;right:14px;z-index:2147483600;border:1px solid rgba(34,211,238,.5);background:rgba(6,182,212,.18);color:#ecfeff;border-radius:10px;padding:8px 14px;font:600 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.3);pointer-events:auto}' +
     '.gc-launch:hover{background:rgba(6,182,212,.28)}' +
-    '.gc-overlay{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(6px);z-index:2147483599;padding:18px;display:flex;justify-content:center;align-items:center;font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#f8fafc}' +
+    '.gc-overlay{position:fixed;inset:0;background:rgba(2,6,23,.72);backdrop-filter:blur(6px);z-index:2147483599;padding:18px;display:flex;justify-content:center;align-items:center;font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#f8fafc;pointer-events:auto}' +
     '.gc-overlay.hidden{display:none}' +
     '.gc-modal{width:min(1440px,98vw);height:min(920px,95vh);background:#060d18;border:1px solid rgba(148,163,184,.28);border-radius:16px;display:flex;flex-direction:column;overflow:hidden}' +
     '.gc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(148,163,184,.2);background:rgba(10,15,24,.8)}' +
@@ -1366,7 +1593,7 @@
     '.gc-image-cell{display:flex;align-items:center;gap:8px}' +
     '.gc-image-cell img{width:64px;height:44px;border-radius:8px;object-fit:cover}' +
     '.gc-empty{border:1px dashed rgba(148,163,184,.45);border-radius:12px;padding:20px;text-align:center;color:#94a3b8;background:rgba(15,23,42,.55)}' +
-    '.gc-toast-wrap{position:fixed;right:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;z-index:2147483601;font:13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
+    '.gc-toast-wrap{position:fixed;right:14px;bottom:14px;display:flex;flex-direction:column;gap:8px;z-index:2147483601;font:13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;pointer-events:auto}' +
     '.gc-toast{padding:10px 12px;border-radius:10px;background:rgba(2,6,23,.95);border:1px solid rgba(148,163,184,.35);color:#f8fafc;box-shadow:0 10px 24px rgba(0,0,0,.35)}' +
     '.gc-toast.success{border-color:rgba(34,197,94,.72)}' +
     '.gc-toast.error{border-color:rgba(239,68,68,.72)}' +
@@ -1397,9 +1624,9 @@
   var extraStyle = document.createElement('style');
   extraStyle.textContent =
     '.gc-launch{top:auto !important;bottom:14px !important;right:14px !important;z-index:2147483596 !important}' +
-    '.gc-dashboard-float{position:fixed;bottom:14px;right:116px;z-index:2147483596;border:1px solid rgba(59,130,246,.55);background:rgba(30,64,175,.25);color:#dbeafe;border-radius:10px;padding:8px 14px;font:600 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.3)}' +
+    '.gc-dashboard-float{position:fixed;bottom:14px;right:116px;z-index:2147483596;border:1px solid rgba(59,130,246,.55);background:rgba(30,64,175,.25);color:#dbeafe;border-radius:10px;padding:8px 14px;font:600 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.3);pointer-events:auto}' +
     '.gc-dashboard-float:hover{background:rgba(30,64,175,.42)}' +
-    '.gc-dashboard-overlay{position:fixed;inset:0;z-index:2147483592;background:radial-gradient(circle at 20% -10%, rgba(37,99,235,.25), transparent 45%),radial-gradient(circle at 100% 0%, rgba(14,165,233,.2), transparent 40%),linear-gradient(160deg, rgba(2,6,23,.96), rgba(3,13,39,.96));backdrop-filter:blur(8px);padding:16px;display:flex;justify-content:center;align-items:center;color:#f8fafc;font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
+    '.gc-dashboard-overlay{position:fixed;inset:0;z-index:2147483592;background:radial-gradient(circle at 20% -10%, rgba(37,99,235,.25), transparent 45%),radial-gradient(circle at 100% 0%, rgba(14,165,233,.2), transparent 40%),linear-gradient(160deg, rgba(2,6,23,.96), rgba(3,13,39,.96));backdrop-filter:blur(8px);padding:16px;display:flex;justify-content:center;align-items:center;color:#f8fafc;font:14px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;pointer-events:auto}' +
     '.gc-dashboard-overlay.hidden{display:none}' +
     '.gc-dashboard-shell{width:min(1660px,99vw);height:min(960px,96vh);border:1px solid rgba(148,163,184,.28);border-radius:18px;background:rgba(5,10,24,.92);padding:16px;overflow:auto;box-sizing:border-box}' +
     '.gc-dashboard{display:flex;flex-direction:column;gap:14px}' +
@@ -1443,6 +1670,42 @@
     '@media (max-width:900px){.gc-dashboard-overlay{padding:10px}.gc-dashboard-shell{padding:12px}.gc-bento-grid{grid-template-columns:repeat(1,minmax(0,1fr))}.gc-bento-card.span-6,.gc-bento-card.span-4,.gc-bento-card.span-3{grid-column:span 1}.gc-dashboard-top{flex-direction:column}.gc-dashboard-float{right:14px;bottom:58px}}';
   shadow.appendChild(extraStyle);
 
+  var reportStyle = document.createElement('style');
+  reportStyle.textContent =
+    '.gc-report-overlay{position:fixed;inset:0;z-index:2147483598;background:rgba(2,6,23,.85);backdrop-filter:blur(6px);padding:16px;display:flex;align-items:center;justify-content:center;color:#e2e8f0;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}' +
+    '.gc-report-overlay.hidden{display:none}' +
+    '.gc-report-shell{width:min(1240px,96vw);height:min(900px,95vh);display:flex;flex-direction:column;background:rgba(7,12,24,.98);border:1px solid rgba(148,163,184,.32);border-radius:16px;overflow:hidden}' +
+    '.gc-report-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(148,163,184,.22);background:rgba(9,15,30,.92)}' +
+    '.gc-report-top h2{margin:0;font-size:22px;color:#f8fafc}' +
+    '.gc-report-top p{margin:5px 0 0;color:#93c5fd;font-size:13px}' +
+    '.gc-report-body{padding:14px;overflow:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}' +
+    '.gc-report-page{display:contents}' +
+    '.gc-report-card{border:1px solid rgba(148,163,184,.24);border-radius:12px;background:rgba(15,23,42,.62);padding:12px;display:flex;flex-direction:column;gap:8px}' +
+    '.gc-report-card h3{margin:0;font-size:16px;color:#f8fafc}' +
+    '.gc-report-kv{display:flex;flex-direction:column;gap:4px}' +
+    '.gc-report-kv span{font-size:12px;color:#94a3b8}' +
+    '.gc-report-kv strong{font-size:14px;color:#f8fafc}' +
+    '.gc-report-kv p{margin:0;color:#cbd5e1}' +
+    '.gc-report-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}' +
+    '.gc-report-list li{display:flex;gap:10px;align-items:flex-start;padding:8px;border:1px solid rgba(148,163,184,.22);border-radius:10px;background:rgba(2,6,23,.42)}' +
+    '.gc-report-list time{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;color:#7dd3fc;font-size:12px;min-width:42px}' +
+    '.gc-report-list span{color:#dbeafe;font-size:13px;line-height:1.5}' +
+    '.gc-report-views{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}' +
+    '.gc-report-views figure{margin:0;border:1px solid rgba(148,163,184,.22);border-radius:10px;overflow:hidden;background:rgba(2,6,23,.42)}' +
+    '.gc-report-views img{width:100%;height:160px;display:block;object-fit:cover}' +
+    '.gc-report-views figcaption{padding:6px 8px;font-size:12px;color:#dbeafe}' +
+    '.gc-report-compare{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}' +
+    '.gc-report-compare-item{border:1px solid rgba(148,163,184,.24);border-radius:10px;padding:10px;background:rgba(2,6,23,.42);display:flex;flex-direction:column;gap:6px}' +
+    '.gc-report-compare-item strong{font-size:13px;color:#f8fafc}' +
+    '.gc-report-compare-item p{margin:0;font-size:12px;color:#cbd5e1;line-height:1.45}' +
+    '.gc-report-compare-item em{font-style:normal;align-self:flex-start;font-size:11px;color:#7dd3fc;padding:2px 8px;border-radius:999px;border:1px solid rgba(125,211,252,.4)}' +
+    '.gc-report-heatmap{display:flex;flex-direction:column;gap:8px}' +
+    '.gc-report-heatmap img{width:100%;max-height:380px;object-fit:contain;border-radius:10px;border:1px solid rgba(148,163,184,.24);background:rgba(2,6,23,.76)}' +
+    '.gc-report-heatmap p{margin:0;color:#cbd5e1;font-size:13px;line-height:1.5}' +
+    '.gc-report-footer{padding:12px 16px;border-top:1px solid rgba(148,163,184,.22);display:flex;justify-content:flex-end;gap:8px;background:rgba(7,12,24,.96)}' +
+    '@media (max-width:1100px){.gc-report-body{grid-template-columns:1fr}.gc-report-views,.gc-report-compare{grid-template-columns:1fr}}';
+  shadow.appendChild(reportStyle);
+
   var dashboardOverlay = document.createElement('div');
   dashboardOverlay.id = 'gc-dashboard-overlay';
   dashboardOverlay.className = 'gc-dashboard-overlay';
@@ -1459,6 +1722,24 @@
   dashboardBtn.className = 'gc-dashboard-float';
   dashboardBtn.textContent = '返回看板';
   shadow.appendChild(dashboardBtn);
+
+  var reportOverlay = document.createElement('div');
+  reportOverlay.id = 'gc-report-overlay';
+  reportOverlay.className = 'gc-report-overlay hidden';
+  reportOverlay.innerHTML =
+    '<div class="gc-report-shell">' +
+    '<div class="gc-report-top">' +
+    '<div><h2>完整设计报告（PDF预览）</h2><p>演示页面：整合项目信息、参数元数据、迭代历史、三视图、风格对比与热力图分析。</p></div>' +
+    '<button class="gc-close" data-action="report-close">关闭</button>' +
+    '</div>' +
+    '<div class="gc-report-body" id="gc-report-content"></div>' +
+    '<div class="gc-report-footer">' +
+    '<button class="gc-btn gc-btn-secondary" data-action="report-close">关闭</button>' +
+    '<button class="gc-btn gc-btn-primary" data-action="report-export">导出PDF</button>' +
+    '</div>' +
+    '</div>';
+  shadow.appendChild(reportOverlay);
+  var reportContent = reportOverlay.querySelector('#gc-report-content');
 
   var profileMenuRoot = document.createElement('div');
   profileMenuRoot.id = 'gc-profile-menu-root';
@@ -1483,7 +1764,24 @@
     '.gc-profile-actions button{border:1px solid rgba(148,163,184,.35);border-radius:8px;background:rgba(15,23,42,.72);color:#e2e8f0;padding:6px 8px;cursor:pointer}' +
     '.gc-profile-actions button:hover{background:rgba(30,41,59,.9)}' +
     '.gc-profile-switch{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}' +
-    '.gc-settings-hidden{display:none !important}';
+    '.gc-settings-hidden{display:none !important}' +
+    '.gc-paper-heatmap-overlay,.gc-paper-xai-overlay{position:absolute;inset:0;pointer-events:none}' +
+    '.gc-paper-heatmap-node{position:absolute;transform:translate(-50%,-50%);border-radius:999px;border:1px solid rgba(255,255,255,.22);background:radial-gradient(circle, rgba(239,68,68,.68) 0%, rgba(245,158,11,.44) 30%, rgba(56,189,248,.16) 56%, rgba(0,0,0,0) 78%)}' +
+    '.gc-paper-heatmap-list{display:flex;flex-direction:column;gap:8px}' +
+    '.gc-paper-heatmap-item{padding:10px;border-radius:10px;background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.26)}' +
+    '.gc-paper-heatmap-item-top{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#7dd3fc}' +
+    '.gc-paper-heatmap-item strong{display:block;font-size:13px;color:#f8fafc;margin:4px 0 2px}' +
+    '.gc-paper-heatmap-item p{margin:0;font-size:12px;color:#cbd5e1;line-height:1.45}' +
+    '.gc-paper-xai-marker{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;font:700 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:#fff;background:rgba(37,99,235,.92);border:1px solid rgba(147,197,253,.5);box-shadow:0 8px 18px rgba(0,0,0,.35)}' +
+    '.gc-paper-xai-list{display:flex;flex-direction:column;gap:8px}' +
+    '.gc-paper-xai-item{padding:10px;border-radius:10px;background:rgba(15,23,42,.55);border:1px solid rgba(148,163,184,.26)}' +
+    '.gc-paper-xai-item-head{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#93c5fd}' +
+    '.gc-paper-xai-item strong{display:block;font-size:13px;color:#f8fafc;margin:4px 0 2px}' +
+    '.gc-paper-xai-item p{margin:0;font-size:12px;color:#cbd5e1;line-height:1.45}' +
+    '.gc-paper-xai-advice{display:flex;flex-direction:column;gap:8px}' +
+    '.gc-paper-xai-advice-item{padding:10px;border-radius:10px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);font-size:12px;color:#dcfce7;line-height:1.45}' +
+    '.gc-case-canvas-overlay{position:absolute;inset:0;width:100%;height:100%;border-radius:8px;object-fit:contain;background:rgba(2,6,23,.86);pointer-events:none;z-index:3}' +
+    '.gc-case-hidden{display:none !important}';
   document.head.appendChild(globalStyle);
 
   function openPanel() {
@@ -1509,6 +1807,140 @@
     state.dashboardOpen = false;
     state.profileMenuOpen = false;
     render();
+  }
+
+  function openReportOverlay() {
+    state.reportOpen = true;
+    state.profileMenuOpen = false;
+    touchAction('打开完整设计报告');
+    render();
+  }
+
+  function closeReportOverlay() {
+    if (!state.reportOpen) {
+      return;
+    }
+    state.reportOpen = false;
+    render();
+  }
+
+  function isTopbarExportButton(button) {
+    if (!button) {
+      return false;
+    }
+    if (button.getAttribute('code-path') === 'src/components/TopBar.tsx:42:11') {
+      return true;
+    }
+    var text = String(button.textContent || '').trim();
+    if (text !== '导出') {
+      return false;
+    }
+    var parent = button.parentElement;
+    if (!parent) {
+      return false;
+    }
+    var siblingTexts = Array.prototype.map.call(parent.querySelectorAll('button'), function (item) {
+      return String(item.textContent || '').trim();
+    });
+    return siblingTexts.indexOf('打开') >= 0 && siblingTexts.indexOf('保存') >= 0;
+  }
+
+  function isXaiExportButton(button) {
+    if (!button) {
+      return false;
+    }
+    if (button.getAttribute('code-path') === 'src/components/XAIReportPanel.tsx:186:11') {
+      return true;
+    }
+    var text = String(button.textContent || '').trim();
+    if (text.indexOf('导出报告') < 0) {
+      return false;
+    }
+    return !!button.closest('div[code-path="src/components/XAIReportPanel.tsx:25:5"]');
+  }
+
+  function patchXaiFeasibilityCopy() {
+    var modal = document.querySelector('div[code-path="src/components/XAIReportPanel.tsx:25:5"]');
+    if (!modal) {
+      return false;
+    }
+    var title = modal.querySelector('h2[code-path="src/components/XAIReportPanel.tsx:34:15"]');
+    var subtitle = modal.querySelector('p[code-path="src/components/XAIReportPanel.tsx:35:15"]');
+    var changed = false;
+    if (title && title.textContent !== '可行性分析报告') {
+      title.textContent = '可行性分析报告';
+      changed = true;
+    }
+    if (subtitle && subtitle.textContent !== '基于侧视图的空气动力学可行性分析与方案建议') {
+      subtitle.textContent = '基于侧视图的空气动力学可行性分析与方案建议';
+      changed = true;
+    }
+    Array.prototype.forEach.call(modal.querySelectorAll('p,span,strong,button,h3,h4'), function (node) {
+      var text = String(node.textContent || '');
+      if (!text) {
+        return;
+      }
+      if (text.indexOf('可解释性') < 0 && text.indexOf('XAI') < 0) {
+        return;
+      }
+      var replaced = text.replace(/可解释性/g, '可行性').replace(/XAI/g, '可行性分析');
+      if (replaced !== text) {
+        node.textContent = replaced;
+        changed = true;
+      }
+    });
+    if (changed) {
+      modal.dataset.gcFeasibilityCopyPatched = '1';
+    }
+    return true;
+  }
+
+  function patchFeasibilityActionButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll('button'), function (button) {
+      var text = String(button.textContent || '').trim();
+      if (text === '运行XAI分析') {
+        button.textContent = '运行可行性分析';
+      }
+    });
+  }
+
+  function bindReportEntryButtons() {
+    var topbarExport = document.querySelector('button[code-path="src/components/TopBar.tsx:42:11"]');
+    if (!topbarExport) {
+      var candidates = Array.prototype.slice.call(document.querySelectorAll('button'));
+      topbarExport =
+        candidates.find(function (button) {
+          return isTopbarExportButton(button);
+        }) || null;
+    }
+    if (topbarExport && topbarExport.dataset.gcReportBound !== '1') {
+      topbarExport.dataset.gcReportBound = '1';
+      topbarExport.addEventListener(
+        'click',
+        function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          openReportOverlay();
+        },
+        true
+      );
+    }
+
+    Array.prototype.forEach.call(document.querySelectorAll('button'), function (button) {
+      if (!isXaiExportButton(button) || button.dataset.gcReportBound === '1') {
+        return;
+      }
+      button.dataset.gcReportBound = '1';
+      button.addEventListener(
+        'click',
+        function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          openReportOverlay();
+        },
+        true
+      );
+    });
   }
 
   function getSettingsButton() {
@@ -1547,6 +1979,523 @@
     settingsButton.classList.add('gc-settings-hidden');
     settingsButton.setAttribute('aria-hidden', 'true');
     settingsButton.setAttribute('tabindex', '-1');
+  }
+
+  function normalizeViewKey(text) {
+    var value = String(text || '')
+      .trim()
+      .toLowerCase();
+    if (!value) {
+      return '';
+    }
+    if (value.indexOf('前') >= 0 || value === 'front') {
+      return 'front';
+    }
+    if (value.indexOf('侧') >= 0 || value === 'side') {
+      return 'side';
+    }
+    if (value.indexOf('后') >= 0 || value === 'rear' || value === 'back') {
+      return 'rear';
+    }
+    if (value.indexOf('透视') >= 0 || value === 'perspective') {
+      return 'perspective';
+    }
+    return '';
+  }
+
+  function setNativeValue(element, value) {
+    if (!element) {
+      return false;
+    }
+    var tagName = String(element.tagName || '').toLowerCase();
+    var prototype = tagName === 'textarea' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+    var descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+    if (descriptor && descriptor.set) {
+      descriptor.set.call(element, value);
+    } else {
+      element.value = value;
+    }
+    return true;
+  }
+
+  function setPromptValue(value) {
+    var promptInput = document.querySelector('textarea[code-path="src/components/PromptPanel.tsx:60:9"]');
+    if (!promptInput) {
+      return false;
+    }
+    if (promptInput.value === value) {
+      return true;
+    }
+    setNativeValue(promptInput, value);
+    promptInput.dispatchEvent(new Event('input', { bubbles: true }));
+    promptInput.dispatchEvent(new Event('change', { bubbles: true }));
+    return true;
+  }
+
+  function ensureScenarioPromptDefault() {
+    var promptInput = document.querySelector('textarea[code-path="src/components/PromptPanel.tsx:60:9"]');
+    if (!promptInput) {
+      return false;
+    }
+    if (!state.scenarioPromptApplied) {
+      state.scenarioPromptApplied = true;
+      state.scenarioPromptOptimized = false;
+      setPromptValue(CASE_PROMPT_SHORT_CN);
+      return true;
+    }
+    if (!state.scenarioPromptOptimized && !String(promptInput.value || '').trim()) {
+      setPromptValue(CASE_PROMPT_SHORT_CN);
+    }
+    return true;
+  }
+
+  function renderPromptKeywordChips() {
+    return CASE_PROMPT_KEYWORDS.map(function (item) {
+      return (
+        '<div class="flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 text-xs">' +
+        '<span>' +
+        escapeHtml(item.word) +
+        '</span>' +
+        '<div class="w-8 h-1.5 rounded-full bg-muted overflow-hidden" title="权重: ' +
+        Math.round(item.weight * 100) +
+        '%">' +
+        '<div class="h-full bg-gradient-to-r from-purple-500 to-pink-500" style="width:' +
+        Math.round(item.weight * 100) +
+        '%"></div>' +
+        '</div>' +
+        '</div>'
+      );
+    }).join('');
+  }
+
+  function patchPromptRefinerResultPanel() {
+    var resultPanel = document.querySelector('div[code-path="src/components/PromptRefiner.tsx:157:13"]');
+    if (!resultPanel) {
+      return false;
+    }
+
+    var originalText = resultPanel.querySelector('p[code-path="src/components/PromptRefiner.tsx:161:17"]');
+    var expandedText = resultPanel.querySelector('p[code-path="src/components/PromptRefiner.tsx:185:17"]');
+    var keywordHost = resultPanel.querySelector('div[code-path="src/components/PromptRefiner.tsx:191:17"]');
+    var applyButton = resultPanel.querySelector('button[code-path="src/components/PromptRefiner.tsx:214:17"]');
+
+    if (originalText) {
+      originalText.textContent = CASE_PROMPT_SHORT_CN;
+    }
+    if (expandedText) {
+      expandedText.textContent = CASE_PROMPT_LONG_EN;
+    }
+    if (keywordHost) {
+      keywordHost.innerHTML = renderPromptKeywordChips();
+    }
+
+    if (applyButton && applyButton.dataset.gcCaseApplyBound !== '1') {
+      applyButton.dataset.gcCaseApplyBound = '1';
+      applyButton.addEventListener(
+        'click',
+        function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          state.scenarioPromptOptimized = true;
+          state.scenarioOptimizePending = false;
+          setPromptValue(CASE_PROMPT_LONG_EN);
+          touchAction('应用优化提示词');
+          addToast('已应用优化结果', 'success');
+          var toggleButton = document.querySelector('button[code-path="src/components/PromptRefiner.tsx:115:7"]');
+          if (toggleButton) {
+            window.setTimeout(function () {
+              toggleButton.click();
+            }, 0);
+          }
+        },
+        true
+      );
+    }
+    return true;
+  }
+
+  function schedulePromptRefinerPatch() {
+    var attempts = 0;
+    var timer = window.setInterval(function () {
+      attempts += 1;
+      if (patchPromptRefinerResultPanel() || attempts >= 28) {
+        state.scenarioOptimizePending = false;
+        window.clearInterval(timer);
+      }
+    }, 90);
+  }
+
+  function patchPromptOptimizerButton() {
+    var optimizeButton = document.querySelector('button[code-path="src/components/PromptRefiner.tsx:135:13"]');
+    if (!optimizeButton) {
+      return false;
+    }
+    if (optimizeButton.dataset.gcCasePromptBound === '1') {
+      return true;
+    }
+    optimizeButton.dataset.gcCasePromptBound = '1';
+    optimizeButton.addEventListener(
+      'click',
+      function () {
+        state.scenarioOptimizePending = true;
+        state.scenarioPromptOptimized = false;
+        schedulePromptRefinerPatch();
+      },
+      true
+    );
+    return true;
+  }
+
+  function getCanvasTabs() {
+    return Array.prototype.slice.call(document.querySelectorAll('button[code-path="src/components/Canvas.tsx:193:11"]'));
+  }
+
+  function findCanvasTab(viewKey) {
+    var tabs = getCanvasTabs();
+    for (var i = 0; i < tabs.length; i += 1) {
+      if (normalizeViewKey(tabs[i].textContent) === viewKey) {
+        return tabs[i];
+      }
+    }
+    return null;
+  }
+
+  function isTabActive(tab) {
+    if (!tab) {
+      return false;
+    }
+    var className = String(tab.className || '');
+    return className.indexOf('bg-blue-500/20') >= 0 || className.indexOf('text-blue-400') >= 0;
+  }
+
+  function ensureCanvasOverlayImage() {
+    var canvasHost = document.querySelector('div[code-path="src/components/Canvas.tsx:214:11"]');
+    if (!canvasHost) {
+      return null;
+    }
+    var overlayImage = canvasHost.querySelector('#gc-case-canvas-overlay');
+    if (!overlayImage) {
+      overlayImage = document.createElement('img');
+      overlayImage.id = 'gc-case-canvas-overlay';
+      overlayImage.className = 'gc-case-canvas-overlay';
+      overlayImage.alt = 'Case View';
+      canvasHost.appendChild(overlayImage);
+    }
+    return overlayImage;
+  }
+
+  function applyCanvasScenarioImage(viewKey) {
+    if (!CASE_VIEW_IMAGES[viewKey]) {
+      return false;
+    }
+    var overlayImage = ensureCanvasOverlayImage();
+    if (!overlayImage) {
+      return false;
+    }
+    var src = CASE_VIEW_IMAGES[viewKey];
+    var alt = CASE_VIEW_LABELS[viewKey] || viewKey;
+    if (overlayImage.getAttribute('src') !== src) {
+      overlayImage.setAttribute('src', src);
+    }
+    if (overlayImage.getAttribute('alt') !== alt) {
+      overlayImage.setAttribute('alt', alt);
+    }
+    if (overlayImage.style.display !== 'block') {
+      overlayImage.style.display = 'block';
+    }
+    if (state.scenarioActiveView !== viewKey) {
+      state.scenarioActiveView = viewKey;
+    }
+    return true;
+  }
+
+  function bindHistoryCard(card, viewKey) {
+    if (!card || !viewKey || card.dataset.gcCaseViewBound === '1') {
+      return;
+    }
+    card.dataset.gcCaseViewBound = '1';
+    card.addEventListener('click', function () {
+      state.scenarioActiveView = viewKey;
+      applyCanvasScenarioImage(viewKey);
+      var tab = findCanvasTab(viewKey);
+      if (tab && !isTabActive(tab)) {
+        tab.click();
+      }
+    });
+  }
+
+  function patchHistoryViewCards() {
+    var cards = Array.prototype.slice.call(
+      document.querySelectorAll('div[code-path="src/components/PromptPanel.tsx:158:17"]')
+    );
+    if (cards.length === 0) {
+      return false;
+    }
+
+    var fallback = ['rear', 'side', 'front'];
+    cards.forEach(function (card, index) {
+      var badge = card.querySelector('div[code-path="src/components/PromptPanel.tsx:175:19"]');
+      var image = card.querySelector('img[code-path="src/components/PromptPanel.tsx:168:19"]');
+      var key = normalizeViewKey(badge ? badge.textContent : '');
+      if (!key) {
+        key = fallback[index] || '';
+      }
+      if (!CASE_VIEW_IMAGES[key]) {
+        return;
+      }
+      card.dataset.gcCaseViewKey = key;
+      if (badge && badge.textContent !== key) {
+        badge.textContent = key;
+      }
+      if (image) {
+        var src = CASE_VIEW_IMAGES[key];
+        var alt = CASE_VIEW_LABELS[key] || key;
+        if (image.getAttribute('src') !== src) {
+          image.setAttribute('src', src);
+        }
+        if (image.getAttribute('alt') !== alt) {
+          image.setAttribute('alt', alt);
+        }
+      }
+      bindHistoryCard(card, key);
+    });
+    return true;
+  }
+
+  function patchCanvasViewTabs() {
+    var tabs = getCanvasTabs();
+    if (tabs.length === 0) {
+      return false;
+    }
+    var activeKey = '';
+    var perspectiveActive = false;
+    tabs.forEach(function (tab) {
+      var key = normalizeViewKey(tab.textContent);
+      if (key === 'perspective') {
+        if (isTabActive(tab)) {
+          perspectiveActive = true;
+        }
+        tab.classList.add('gc-case-hidden');
+        return;
+      }
+      tab.classList.remove('gc-case-hidden');
+      if (isTabActive(tab)) {
+        activeKey = key;
+      }
+      if (tab.dataset.gcCaseTabBound === '1') {
+        return;
+      }
+      tab.dataset.gcCaseTabBound = '1';
+      tab.addEventListener('click', function () {
+        state.scenarioActiveView = key;
+        window.setTimeout(function () {
+          applyCanvasScenarioImage(key);
+        }, 0);
+      });
+    });
+
+    if (perspectiveActive && state.scenarioActiveView !== 'front') {
+      state.scenarioActiveView = 'front';
+      var frontTab = findCanvasTab('front');
+      if (frontTab) {
+        frontTab.click();
+        activeKey = 'front';
+      }
+    }
+    if (!activeKey) {
+      activeKey = state.scenarioActiveView || 'front';
+    }
+    applyCanvasScenarioImage(activeKey);
+    return true;
+  }
+
+  function patchWorkbenchScenario() {
+    ensureScenarioPromptDefault();
+    patchPromptOptimizerButton();
+    patchPromptRefinerResultPanel();
+    patchHistoryViewCards();
+    patchCanvasViewTabs();
+  }
+
+  function applyPaperHeatmapPatch() {
+    var modal = document.querySelector('div[code-path="src/components/AttentionHeatmap.tsx:222:5"]');
+    if (!modal) {
+      return false;
+    }
+    if (modal.dataset.gcPaperHeatmapPatched === '1') {
+      return true;
+    }
+
+    var image = modal.querySelector('img[code-path="src/components/AttentionHeatmap.tsx:249:17"]');
+    var stage = modal.querySelector('div[code-path="src/components/AttentionHeatmap.tsx:247:15"]');
+    var svg = modal.querySelector('svg[code-path="src/components/AttentionHeatmap.tsx:256:17"]');
+    var interactive = modal.querySelector('div[code-path="src/components/AttentionHeatmap.tsx:331:17"]');
+    var promptText = modal.querySelector('p[code-path="src/components/AttentionHeatmap.tsx:436:17"]');
+    var keywordHost = modal.querySelector('div[code-path="src/components/AttentionHeatmap.tsx:446:17"]');
+    if (!image || !stage || !promptText || !keywordHost) {
+      return false;
+    }
+
+    modal.dataset.gcPaperHeatmapPatched = '1';
+    image.src = './assets/heatmap-manual.png';
+    image.alt = 'Manual Heatmap';
+    image.style.objectFit = 'contain';
+    stage.style.position = 'relative';
+    stage.style.background = 'rgba(2,6,23,.9)';
+    stage.style.borderRadius = '14px';
+    stage.style.overflow = 'hidden';
+    if (svg) {
+      svg.style.display = 'none';
+    }
+    if (interactive) {
+      interactive.style.display = 'none';
+    }
+
+    var overlay = stage.querySelector('.gc-paper-heatmap-overlay');
+    if (overlay) {
+      overlay.innerHTML = '';
+      overlay.style.display = 'none';
+    }
+
+    promptText.textContent = PAPER_HEATMAP_PROMPT;
+    keywordHost.innerHTML =
+      '<div class="gc-paper-heatmap-list">' +
+      PAPER_HEATMAP_REGIONS.map(function (item) {
+        return (
+          '<div class="gc-paper-heatmap-item">' +
+          '<div class="gc-paper-heatmap-item-top"><span>权重 ' +
+          Math.round(item.weight * 100) +
+          '%</span><span>区域映射</span></div>' +
+          '<strong>' +
+          escapeHtml(item.word) +
+          '</strong>' +
+          '<p>对应区域：' +
+          escapeHtml(item.focus) +
+          '</p>' +
+          '<p>' +
+          escapeHtml(item.note) +
+          '</p>' +
+          '</div>'
+        );
+      }).join('') +
+      '</div>';
+    return true;
+  }
+
+  function applyPaperXaiPatch() {
+    var modal = document.querySelector('div[code-path="src/components/XAIReportPanel.tsx:25:5"]');
+    if (!modal) {
+      return false;
+    }
+    if (modal.dataset.gcPaperXaiPatched === '1') {
+      return true;
+    }
+
+    var title = modal.querySelector('h2[code-path="src/components/XAIReportPanel.tsx:34:15"]');
+    var subtitle = modal.querySelector('p[code-path="src/components/XAIReportPanel.tsx:35:15"]');
+    var stage = modal.querySelector('div[code-path="src/components/XAIReportPanel.tsx:128:17"]');
+    var image = modal.querySelector('img[code-path="src/components/XAIReportPanel.tsx:129:19"]');
+    var problemHost = modal.querySelector('div[code-path="src/components/XAIReportPanel.tsx:88:15"]');
+    var adviceHost = modal.querySelector('div[code-path="src/components/XAIReportPanel.tsx:155:15"]');
+    var prediction = modal.querySelector('div[code-path="src/components/XAIReportPanel.tsx:167:15"]');
+    if (!stage || !image || !problemHost || !adviceHost) {
+      return false;
+    }
+
+    modal.dataset.gcPaperXaiPatched = '1';
+    if (title) {
+      title.textContent = '可行性分析报告';
+    }
+    if (subtitle) {
+      subtitle.textContent = '基于侧视图的空气动力学可行性分析与方案建议';
+    }
+
+    image.src = './assets/case-side.png';
+    image.alt = 'Side View Aerodynamics';
+    image.style.objectFit = 'contain';
+    image.style.background = 'rgba(2,6,23,.9)';
+    stage.style.position = 'relative';
+    stage.style.background = 'rgba(2,6,23,.9)';
+    stage.style.borderRadius = '14px';
+    stage.style.overflow = 'hidden';
+
+    Array.prototype.forEach.call(
+      stage.querySelectorAll(
+        '[code-path="src/components/XAIReportPanel.tsx:138:19"],[code-path="src/components/XAIReportPanel.tsx:141:19"]'
+      ),
+      function (node) {
+        node.style.display = 'none';
+      }
+    );
+
+    var overlay = stage.querySelector('.gc-paper-xai-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'gc-paper-xai-overlay';
+      stage.appendChild(overlay);
+    }
+    overlay.innerHTML = PAPER_XAI_MARKERS.map(function (item) {
+      return (
+        '<div class="gc-paper-xai-marker" style="left:' +
+        item.left +
+        '%;top:' +
+        item.top +
+        '%;">' +
+        item.id +
+        '</div>'
+      );
+    }).join('');
+
+    problemHost.innerHTML =
+      '<div class="gc-paper-xai-list">' +
+      PAPER_XAI_MARKERS.map(function (item) {
+        return (
+          '<div class="gc-paper-xai-item">' +
+          '<div class="gc-paper-xai-item-head"><span>#' +
+          item.id +
+          '</span><span>' +
+          escapeHtml(item.level) +
+          '</span></div>' +
+          '<strong>' +
+          escapeHtml(item.title) +
+          '</strong>' +
+          '<p>' +
+          escapeHtml(item.issue) +
+          '</p>' +
+          '</div>'
+        );
+      }).join('') +
+      '</div>';
+
+    adviceHost.innerHTML =
+      '<div class="gc-paper-xai-advice">' +
+      PAPER_XAI_MARKERS.map(function (item) {
+        return (
+          '<div class="gc-paper-xai-advice-item"><strong>#' +
+          item.id +
+          ' 建议：</strong>' +
+          escapeHtml(item.advice) +
+          '</div>'
+        );
+      }).join('') +
+      '</div>';
+
+    if (prediction) {
+      prediction.innerHTML =
+        '<p class="text-sm text-blue-400"><span class="font-medium">结论：</span>当前方案整体气动趋势可控，重点优化 #1 与 #2 区域后，预估可获得更稳定的侧向附着与更低的阻力损失。</p>';
+    }
+    return true;
+  }
+
+  function schedulePaperPatch(type) {
+    var attempts = 0;
+    var timer = window.setInterval(function () {
+      attempts += 1;
+      var done = type === 'heatmap' ? applyPaperHeatmapPatch() : applyPaperXaiPatch();
+      if (done || attempts >= 24) {
+        window.clearInterval(timer);
+      }
+    }, 80);
   }
 
   function renderProfileMenu() {
@@ -1785,6 +2734,17 @@
   }
 
   function handleAction(action, element, event) {
+    if (action === 'report-close') {
+      closeReportOverlay();
+      return;
+    }
+
+    if (action === 'report-export') {
+      addToast('已导出完整设计报告 PDF', 'success');
+      touchAction('导出完整设计报告');
+      return;
+    }
+
     if (action === 'dashboard-go-workbench') {
       closeDashboard();
       state.profileMenuOpen = false;
@@ -2137,6 +3097,12 @@
       }
     });
 
+    reportOverlay.addEventListener('click', function (event) {
+      if (event.target === reportOverlay) {
+        closeReportOverlay();
+      }
+    });
+
     shadow.addEventListener('click', function (event) {
       var target = event.target;
       if (!(target instanceof Element)) {
@@ -2226,6 +3192,36 @@
       render();
     });
 
+    document.addEventListener('click', function (event) {
+      var target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+      var button = target.closest('button');
+      if (!button) {
+        return;
+      }
+      if (isTopbarExportButton(button) || isXaiExportButton(button)) {
+        event.preventDefault();
+        event.stopPropagation();
+        openReportOverlay();
+        return;
+      }
+      var text = String(button.textContent || '').trim();
+      if (text.indexOf('交叉注意力热力图') >= 0) {
+        window.setTimeout(function () {
+          schedulePaperPatch('heatmap');
+        }, 20);
+        return;
+      }
+      if (text.indexOf('运行XAI分析') >= 0 || text.indexOf('运行可行性分析') >= 0) {
+        window.setTimeout(function () {
+          schedulePaperPatch('xai');
+          patchXaiFeasibilityCopy();
+        }, 20);
+      }
+    }, true);
+
     shadow.addEventListener('dragover', function (event) {
       var target = event.target;
       if (!(target instanceof Element)) {
@@ -2271,6 +3267,10 @@
 
     window.addEventListener('keydown', function (event) {
       if (event.key === 'Escape') {
+        if (state.reportOpen) {
+          closeReportOverlay();
+          return;
+        }
         if (state.profileMenuOpen) {
           state.profileMenuOpen = false;
           render();
@@ -2291,8 +3291,13 @@
 
   function render() {
     var hasTopbarShortcuts = patchTopbar();
+    patchWorkbenchScenario();
+    patchFeasibilityActionButtons();
+    patchXaiFeasibilityCopy();
+    bindReportEntryButtons();
     overlay.classList.toggle('hidden', !state.open);
     dashboardOverlay.classList.toggle('hidden', !state.dashboardOpen);
+    reportOverlay.classList.toggle('hidden', !state.reportOpen);
     if (hasTopbarShortcuts) {
       launchBtn.style.display = 'none';
       dashboardBtn.style.display = 'none';
@@ -2305,12 +3310,17 @@
       content.innerHTML = renderStepper() + renderBody();
     }
     dashboardContent.innerHTML = renderDashboard();
+    reportContent.innerHTML = renderDesignReport();
     toasts.innerHTML = renderToasts();
     renderProfileMenu();
   }
 
   var topbarObserver = new MutationObserver(function () {
     patchTopbar();
+    patchWorkbenchScenario();
+    patchFeasibilityActionButtons();
+    patchXaiFeasibilityCopy();
+    bindReportEntryButtons();
   });
   topbarObserver.observe(document.body, { childList: true, subtree: true });
 
