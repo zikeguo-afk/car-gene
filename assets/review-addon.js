@@ -194,12 +194,12 @@
   };
 
   var CAR_IMAGES = [
-    'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=900&h=560&fit=crop',
-    'https://images.unsplash.com/photo-1503376763036-066120622c74?w=900&h=560&fit=crop',
-    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=900&h=560&fit=crop',
-    'https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=900&h=560&fit=crop',
-    'https://images.unsplash.com/photo-1617788138017-80ad40651399?w=900&h=560&fit=crop',
-    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=900&h=560&fit=crop'
+    CASE_VIEW_IMAGES.front,
+    CASE_VIEW_IMAGES.side,
+    CASE_VIEW_IMAGES.rear,
+    CASE_VIEW_IMAGES.front,
+    CASE_VIEW_IMAGES.side,
+    CASE_VIEW_IMAGES.rear
   ];
 
   function nowMinusHours(hours) {
