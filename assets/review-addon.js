@@ -36,9 +36,9 @@
   var PAPER_HEATMAP_PROMPT =
     'streamlined body profile, aerodynamic silhouette, flowing shoulder line, coupe-like roofline, smooth surface transitions, wind-cheating design';
   var CASE_VIEW_IMAGES = {
-    front: './assets/case-front.jpg',
-    side: './assets/case-side.jpg',
-    rear: './assets/case-rear.jpg'
+    front: './assets/case-front.png',
+    side: './assets/case-side.png',
+    rear: './assets/case-rear.png'
   };
   var CASE_VIEW_LABELS = {
     front: '前视图',
@@ -1459,7 +1459,7 @@
       '<article class="gc-report-card">' +
       '<h3>热力图分析页面</h3>' +
       '<div class="gc-report-heatmap">' +
-      '<img src="./assets/heatmap-manual.jpg" alt="热力图分析" />' +
+      '<img src="./assets/heatmap-manual.png" alt="热力图分析" />' +
       '<p>该页用于展示提示词与图像关注区域的映射关系，作为设计方案可控性与可行性说明的辅助证据。</p>' +
       '</div>' +
       '</article>' +
@@ -2337,7 +2337,7 @@
     }
 
     modal.dataset.gcPaperHeatmapPatched = '1';
-    image.src = './assets/heatmap-manual.jpg';
+    image.src = './assets/heatmap-manual.png';
     image.alt = 'Manual Heatmap';
     image.style.objectFit = 'contain';
     stage.style.position = 'relative';
@@ -2410,7 +2410,7 @@
       subtitle.textContent = '基于侧视图的空气动力学可行性分析与方案建议';
     }
 
-    image.src = './assets/case-side.jpg';
+    image.src = './assets/case-side.png';
     image.alt = 'Side View Aerodynamics';
     image.style.objectFit = 'contain';
     image.style.background = 'rgba(2,6,23,.9)';
